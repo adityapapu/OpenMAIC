@@ -167,6 +167,9 @@ export function TTSSettings({ selectedProviderId }: TTSSettingsProps) {
               case 'gemini-tts':
                 endpointPath = '/v1beta/models/gemini-2.5-flash-preview-tts:generateContent';
                 break;
+              case 'google-cloud-tts':
+                endpointPath = '/v1/text:synthesize';
+                break;
             }
             if (!endpointPath) return null;
             return (
