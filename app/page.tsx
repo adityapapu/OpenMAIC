@@ -10,6 +10,7 @@ import {
   Clock,
   Copy,
   ImagePlus,
+  LogOut,
   Pencil,
   Trash2,
   Settings,
@@ -46,6 +47,7 @@ import { toast } from 'sonner';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useDraftCache } from '@/lib/hooks/use-draft-cache';
 import { SpeechButton } from '@/components/audio/speech-button';
+import { signOut } from '@/lib/auth-client';
 
 const log = createLogger('Home');
 
@@ -439,6 +441,15 @@ function HomePage() {
         </div>
 
         <div className="w-[1px] h-4 bg-gray-200 dark:bg-gray-700" />
+
+        {/* Sign Out Button */}
+        <button
+          onClick={() => signOut({ fetchOptions: { onSuccess: () => router.push('/sign-in'), onError: () => { toast.error('Failed to sign out'); } } })}
+          className="p-2 rounded-full text-gray-400 dark:text-gray-500 hover:bg-white dark:hover:bg-gray-700 hover:text-red-500 dark:hover:text-red-400 hover:shadow-sm transition-all"
+          title="Sign out"
+        >
+          <LogOut className="w-4 h-4" />
+        </button>
 
         {/* Settings Button */}
         <div className="relative">
