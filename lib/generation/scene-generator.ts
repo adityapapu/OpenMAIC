@@ -155,6 +155,7 @@ export async function generateSceneContent(
   visionEnabled?: boolean,
   generatedMediaMapping?: ImageMapping,
   agents?: AgentInfo[],
+  learningMode?: string,
 ): Promise<
   | GeneratedSlideContent
   | GeneratedQuizContent
@@ -176,6 +177,7 @@ export async function generateSceneContent(
       visionEnabled,
       generatedMediaMapping,
       agents,
+      learningMode,
     );
   }
 
@@ -189,9 +191,10 @@ export async function generateSceneContent(
         visionEnabled,
         generatedMediaMapping,
         agents,
+        learningMode,
       );
     case 'quiz':
-      return generateQuizContent(outline, aiCall);
+      return generateQuizContent(outline, aiCall, learningMode);
     case 'interactive':
       return generateInteractiveContent(outline, aiCall, outline.language);
     case 'pbl':
@@ -466,11 +469,15 @@ async function generateSlideContent(
   visionEnabled?: boolean,
   generatedMediaMapping?: ImageMapping,
   agents?: AgentInfo[],
+  learningMode?: string,
 ): Promise<GeneratedSlideContent | null> {
-  const lang = outline.language || 'zh-CN';
+  const lang = outline.language || 'en-US';
 
   // Build assigned images description for the prompt
-  let assignedImagesText = '无可用图片，禁止插入任何 image 元素';
+  let assignedImagesText =
+    lang === 'zh-CN'
+      ? '无可用图片，禁止插入任何 image 元素'
+      : 'No images available. Do NOT insert any image elements.';
   let visionImages: Array<{ id: string; src: string }> | undefined;
 
   if (assignedImages && assignedImages.length > 0) {
@@ -539,11 +546,12 @@ async function generateSlideContent(
     title: outline.title,
     description: outline.description,
     keyPoints: (outline.keyPoints || []).map((p, i) => `${i + 1}. ${p}`).join('\n'),
-    elements: '（根据要点自动生成）',
+    elements: lang === 'zh-CN' ? '（根据要点自动生成）' : '(auto-generated from key points)',
     assignedImages: assignedImagesText,
     canvas_width: canvasWidth,
     canvas_height: canvasHeight,
     teacherContext,
+    learningModeInstructions: buildActionLearningModeInstructions(learningMode, lang),
   });
 
   if (!prompts) {
@@ -632,6 +640,7 @@ async function generateSlideContent(
 async function generateQuizContent(
   outline: SceneOutline,
   aiCall: AICallFn,
+  learningMode?: string,
 ): Promise<GeneratedQuizContent | null> {
   const quizConfig = outline.quizConfig || {
     questionCount: 3,
@@ -646,6 +655,7 @@ async function generateQuizContent(
     questionCount: quizConfig.questionCount,
     difficulty: quizConfig.difficulty,
     questionTypes: quizConfig.questionTypes.join(', '),
+    learningModeInstructions: buildQuizLearningModeInstructions(learningMode, outline.language),
   });
 
   if (!prompts) {
@@ -735,7 +745,7 @@ function normalizeQuizAnswer(question: Record<string, unknown>): string[] | unde
 async function generateInteractiveContent(
   outline: SceneOutline,
   aiCall: AICallFn,
-  language: 'zh-CN' | 'en-US' = 'zh-CN',
+  language: 'zh-CN' | 'en-US' = 'en-US',
 ): Promise<GeneratedInteractiveContent | null> {
   const config = outline.interactiveConfig!;
 
@@ -916,8 +926,10 @@ export async function generateSceneActions(
   ctx?: SceneGenerationContext,
   agents?: AgentInfo[],
   userProfile?: string,
+  learningMode?: string,
 ): Promise<Action[]> {
   const agentsText = formatAgentsForPrompt(agents);
+  const lmInstructions = buildActionLearningModeInstructions(learningMode, outline.language);
 
   if (outline.type === 'slide' && 'elements' in content) {
     // Format element list for AI to select from
@@ -931,6 +943,7 @@ export async function generateSceneActions(
       courseContext: buildCourseContext(ctx),
       agents: agentsText,
       userProfile: userProfile || '',
+      learningModeInstructions: lmInstructions,
     });
 
     if (!prompts) {
@@ -959,6 +972,7 @@ export async function generateSceneActions(
       questions: questionsText,
       courseContext: buildCourseContext(ctx),
       agents: agentsText,
+      learningModeInstructions: lmInstructions,
     });
 
     if (!prompts) {
@@ -986,6 +1000,7 @@ export async function generateSceneActions(
       designIdea: config?.designIdea || '',
       courseContext: buildCourseContext(ctx),
       agents: agentsText,
+      learningModeInstructions: lmInstructions,
     });
 
     if (!prompts) {
@@ -1013,6 +1028,7 @@ export async function generateSceneActions(
       projectDescription: pblConfig?.projectDescription || outline.description,
       courseContext: buildCourseContext(ctx),
       agents: agentsText,
+      learningModeInstructions: lmInstructions,
     });
 
     if (!prompts) {
@@ -1289,4 +1305,54 @@ export function createSceneWithActions(
   }
 
   return null;
+}
+
+/** Build learning-mode instructions for action generation (speech style) */
+function buildActionLearningModeInstructions(
+  mode: string | undefined,
+  language?: string,
+): string {
+  if (!mode || mode === 'learn') return '';
+  const lang = language || 'en-US';
+  const m: Record<string, { zh: string; en: string }> = {
+    interview: {
+      zh: '**面试准备模式**：像面试官一样讲解概念，使用结构化回答。讲解后追问"面试官可能会追问..."。指出候选人常犯的错误。',
+      en: '**Interview Prep Mode**: Explain concepts as if answering an interview question — structured and concise. After explaining, add "An interviewer might follow up with..." Point out common candidate mistakes.',
+    },
+    explore: {
+      zh: '**探索模式**：深入讲解，分享有趣的延伸知识和跨学科联系。鼓励学生思考和提问。',
+      en: '**Explore Mode**: Go deeper, share fascinating tangential knowledge and cross-disciplinary connections. Encourage student curiosity and questions.',
+    },
+    revision: {
+      zh: '**复习模式**：语言简洁，使用"记住..."和"关键要点是..."的表达。快速回顾核心概念。',
+      en: '**Revision Mode**: Keep speech brief and focused. Use "Remember..." and "The key takeaway is..." framing. Quick recap of core concepts.',
+    },
+  };
+  const inst = m[mode];
+  return inst ? (lang === 'zh-CN' ? inst.zh : inst.en) : '';
+}
+
+/** Build learning-mode instructions for quiz content generation */
+function buildQuizLearningModeInstructions(
+  mode: string | undefined,
+  language?: string,
+): string {
+  if (!mode || mode === 'learn') return '';
+  const lang = language || 'en-US';
+  const m: Record<string, { zh: string; en: string }> = {
+    interview: {
+      zh: '**面试准备模式**：题目应模拟真实面试问题。使用"面试官问你..."的方式出题。包含权衡分析题、系统设计场景题和代码分析题。',
+      en: '**Interview Prep Mode**: Frame questions as real interview questions. Use "Your interviewer asks..." Include tradeoff analysis, system design scenarios, and code analysis questions.',
+    },
+    explore: {
+      zh: '**探索模式**：题目偏开放性思考，鼓励深入分析和创造性回答。',
+      en: '**Explore Mode**: Questions should encourage deep analysis and creative thinking. Favor open-ended questions.',
+    },
+    revision: {
+      zh: '**复习模式**：快速回忆题，使用"什么是..."和"什么时候用..."的格式。题目简短直接。',
+      en: '**Revision Mode**: Rapid recall format. Use "What is..." and "When would you use..." questions. Keep questions short and direct.',
+    },
+  };
+  const inst = m[mode];
+  return inst ? (lang === 'zh-CN' ? inst.zh : inst.en) : '';
 }

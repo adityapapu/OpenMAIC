@@ -8,6 +8,7 @@
   {{keyPoints}}
 
 {{teacherContext}}
+{{learningModeInstructions}}
 
 ## Available Resources
 

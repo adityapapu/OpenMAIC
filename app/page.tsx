@@ -58,13 +58,15 @@ interface FormState {
   requirement: string;
   language: 'zh-CN' | 'en-US';
   webSearch: boolean;
+  learningMode: 'learn' | 'explore' | 'interview' | 'revision';
 }
 
 const initialFormState: FormState = {
   pdfFile: null,
   requirement: '',
-  language: 'zh-CN',
+  language: 'en-US',
   webSearch: false,
+  learningMode: 'learn',
 };
 
 function HomePage() {
@@ -257,6 +259,7 @@ function HomePage() {
         userNickname: userProfile.nickname || undefined,
         userBio: userProfile.bio || undefined,
         webSearch: form.webSearch || undefined,
+        learningMode: form.learningMode,
       };
 
       let pdfStorageKey: string | undefined;
@@ -552,6 +555,8 @@ function HomePage() {
                   onLanguageChange={(lang) => updateForm('language', lang)}
                   webSearch={form.webSearch}
                   onWebSearchChange={(v) => updateForm('webSearch', v)}
+                  learningMode={form.learningMode}
+                  onLearningModeChange={(mode) => updateForm('learningMode', mode)}
                   onSettingsOpen={(section) => {
                     setSettingsSection(section);
                     setSettingsOpen(true);

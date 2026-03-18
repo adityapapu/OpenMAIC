@@ -10,6 +10,8 @@ Please generate scene outlines based on the following course requirements.
 
 {{userProfile}}
 
+{{learningModeInstructions}}
+
 ## Course Language
 
 **Required language**: {{language}}

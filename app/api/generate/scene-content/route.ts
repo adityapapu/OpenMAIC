@@ -34,6 +34,7 @@ export async function POST(req: NextRequest) {
       stageInfo,
       stageId,
       agents,
+      learningMode,
     } = body as {
       outline: SceneOutline;
       allOutlines: SceneOutline[];
@@ -47,6 +48,7 @@ export async function POST(req: NextRequest) {
       };
       stageId: string;
       agents?: AgentInfo[];
+      learningMode?: string;
     };
 
     // Validate required fields
@@ -67,7 +69,7 @@ export async function POST(req: NextRequest) {
     // Ensure outline has language from stageInfo (fallback for older outlines)
     const outline: SceneOutline = {
       ...rawOutline,
-      language: rawOutline.language || (stageInfo?.language as 'zh-CN' | 'en-US') || 'zh-CN',
+      language: rawOutline.language || (stageInfo?.language as 'zh-CN' | 'en-US') || 'en-US',
     };
 
     // ── Model resolution from request headers ──
@@ -145,6 +147,7 @@ export async function POST(req: NextRequest) {
       hasVision,
       generatedMediaMapping,
       agents,
+      learningMode,
     );
 
     if (!content) {

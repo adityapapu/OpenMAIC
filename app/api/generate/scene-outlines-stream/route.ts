@@ -14,6 +14,7 @@
 import { NextRequest } from 'next/server';
 import { streamLLM } from '@/lib/ai/llm';
 import { buildPrompt, PROMPT_IDS } from '@/lib/generation/prompts';
+import { buildLearningModeInstructions } from '@/lib/generation/outline-generator';
 import {
   formatImageDescription,
   formatImagePlaceholder,
@@ -172,6 +173,18 @@ export async function POST(req: NextRequest) {
     // Build teacher context from agents (if available)
     const teacherContext = formatTeacherPersonaForPrompt(agents);
 
+    // Build user profile text
+    const userProfileText =
+      requirements.userNickname || requirements.userBio
+        ? `## Student Profile\n\nStudent: ${requirements.userNickname || 'Unknown'}${requirements.userBio ? ` — ${requirements.userBio}` : ''}\n\nConsider this student's background when designing the course. Adapt difficulty, examples, and teaching approach accordingly.\n\n---`
+        : '';
+
+    // Build learning mode instructions
+    const learningModeInstructions = buildLearningModeInstructions(
+      requirements.learningMode,
+      requirements.language,
+    );
+
     const prompts = buildPrompt(PROMPT_IDS.REQUIREMENTS_TO_OUTLINES, {
       requirement: requirements.requirement,
       language: requirements.language,
@@ -184,6 +197,8 @@ export async function POST(req: NextRequest) {
       researchContext: researchContext || (requirements.language === 'zh-CN' ? '无' : 'None'),
       mediaGenerationPolicy,
       teacherContext,
+      userProfile: userProfileText,
+      learningModeInstructions,
     });
 
     if (!prompts) {
@@ -359,3 +374,4 @@ export async function POST(req: NextRequest) {
     return apiError('INTERNAL_ERROR', 500, error instanceof Error ? error.message : String(error));
   }
 }
+

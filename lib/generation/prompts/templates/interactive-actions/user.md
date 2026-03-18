@@ -5,6 +5,7 @@ Design Idea: {{designIdea}}
 Key Points: {{keyPoints}}
 {{courseContext}}
 {{agents}}
+{{learningModeInstructions}}
 
 **Language Requirement**: Generated speech content must be in the same language as the key points above.
 

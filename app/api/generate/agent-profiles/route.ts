@@ -36,6 +36,7 @@ interface RequestBody {
   sceneOutlines?: { title: string; description?: string }[];
   language: string;
   availableAvatars: string[];
+  learningMode?: string;
 }
 
 function stripCodeFences(text: string): string {
@@ -50,7 +51,7 @@ function stripCodeFences(text: string): string {
 export async function POST(req: NextRequest) {
   try {
     const body = (await req.json()) as RequestBody;
-    const { stageInfo, sceneOutlines, language, availableAvatars } = body;
+    const { stageInfo, sceneOutlines, language, availableAvatars, learningMode } = body;
 
     // ── Validate required fields ──
     if (!stageInfo?.name) {
@@ -90,10 +91,12 @@ Requirements:
 - Priority values: teacher=10 (highest), assistant=7, student=4-6
 - Each agent needs: name, role, persona (2-3 sentences describing personality and teaching/learning style)
 - Names and personas must be in language: ${language}
+${language === 'en-US' ? '- Use culturally appropriate Indian names (e.g., Priya, Arjun, Meera, Ravi, Ananya). Use relatable Indian cultural context in personas.' : ''}
 - Each agent must be assigned one avatar from this list: ${JSON.stringify(availableAvatars)}
   - Try to use different avatars for each agent
 - Each agent must be assigned one color from this list: ${JSON.stringify(COLOR_PALETTE)}
   - Each agent must have a different color
+${learningMode === 'interview' ? '- The teacher agent should act as a senior tech interviewer at a top company. Their persona should reflect an interviewer who asks tough but fair questions.\n- Include at least one student agent who acts as a fellow candidate, asking clarifying questions.' : ''}${learningMode === 'explore' ? '- The teacher agent should be an enthusiastic researcher who loves tangential connections and deep dives. Their persona should reflect curiosity and passion.' : ''}${learningMode === 'revision' ? '- The teacher agent should be a concise and efficient tutor focused on quick recall and key takeaways.' : ''}
 
 Return a JSON object with this exact structure:
 {

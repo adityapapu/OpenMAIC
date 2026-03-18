@@ -135,6 +135,7 @@ export default function ClassroomDetailPage() {
           },
           agents: params.agents,
           userProfile: params.userProfile,
+          learningMode: params.learningMode,
         });
       });
     } else if (outlines.length > 0 && stage) {

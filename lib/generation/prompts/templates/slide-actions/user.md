@@ -5,6 +5,7 @@ Description: {{description}}
 {{courseContext}}
 {{agents}}
 {{userProfile}}
+{{learningModeInstructions}}
 
 **Language Requirement**: Generated speech content must be in the same language as the key points above.
 

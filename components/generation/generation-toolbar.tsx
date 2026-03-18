@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useMemo } from 'react';
-import { Bot, Check, ChevronLeft, Globe, Paperclip, FileText, X, Globe2 } from 'lucide-react';
+import { Bot, Check, ChevronLeft, Globe, Paperclip, FileText, X, Globe2, GraduationCap } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
   Select,
@@ -27,6 +27,8 @@ const MAX_PDF_SIZE_MB = 50;
 const MAX_PDF_SIZE_BYTES = MAX_PDF_SIZE_MB * 1024 * 1024;
 
 // ─── Types ───────────────────────────────────────────────────
+import type { LearningMode } from '@/lib/types/generation';
+
 export interface GenerationToolbarProps {
   language: 'zh-CN' | 'en-US';
   onLanguageChange: (lang: 'zh-CN' | 'en-US') => void;
@@ -37,6 +39,9 @@ export interface GenerationToolbarProps {
   pdfFile: File | null;
   onPdfFileChange: (file: File | null) => void;
   onPdfError: (error: string | null) => void;
+  // Learning mode
+  learningMode: LearningMode;
+  onLearningModeChange: (mode: LearningMode) => void;
 }
 
 // ─── Component ───────────────────────────────────────────────
@@ -49,6 +54,8 @@ export function GenerationToolbar({
   pdfFile,
   onPdfFileChange,
   onPdfError,
+  learningMode,
+  onLearningModeChange,
 }: GenerationToolbarProps) {
   const { t } = useI18n();
   const currentProviderId = useSettingsStore((s) => s.providerId);
@@ -370,6 +377,40 @@ export function GenerationToolbar({
         </TooltipTrigger>
         <TooltipContent>{t('toolbar.languageHint')}</TooltipContent>
       </Tooltip>
+
+      {/* ── Learning Mode pill ── */}
+      <Popover>
+        <PopoverTrigger asChild>
+          <button className={pillMuted}>
+            <GraduationCap className="size-3.5" />
+            <span>{t(`toolbar.learningMode_${learningMode}`)}</span>
+          </button>
+        </PopoverTrigger>
+        <PopoverContent align="start" className="w-56 p-2">
+          <div className="space-y-1">
+            {(['learn', 'explore', 'interview', 'revision'] as const).map((mode) => (
+              <button
+                key={mode}
+                onClick={() => onLearningModeChange(mode)}
+                className={cn(
+                  'w-full flex items-center gap-2 rounded-md px-2.5 py-2 text-left text-xs transition-colors',
+                  learningMode === mode
+                    ? 'bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300'
+                    : 'hover:bg-muted/60 text-muted-foreground',
+                )}
+              >
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium">{t(`toolbar.learningMode_${mode}`)}</div>
+                  <div className="text-[10px] text-muted-foreground/70 mt-0.5">
+                    {t(`toolbar.learningMode_${mode}_desc`)}
+                  </div>
+                </div>
+                {learningMode === mode && <Check className="size-3.5 shrink-0" />}
+              </button>
+            ))}
+          </div>
+        </PopoverContent>
+      </Popover>
 
       {/* ── Separator ── */}
       <div className="w-px h-4 bg-border/60 mx-1" />

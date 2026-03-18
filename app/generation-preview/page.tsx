@@ -367,7 +367,7 @@ function GenerationPreviewContent() {
         id: stageId,
         name: extractTopicFromRequirement(currentSession.requirements.requirement),
         description: '',
-        language: currentSession.requirements.language || 'zh-CN',
+        language: currentSession.requirements.language || 'en-US',
         style: 'professional',
         createdAt: Date.now(),
         updatedAt: Date.now(),
@@ -399,8 +399,9 @@ function GenerationPreviewContent() {
             headers: getApiHeaders(),
             body: JSON.stringify({
               stageInfo: { name: stage.name, description: stage.description },
-              language: currentSession.requirements.language || 'zh-CN',
+              language: currentSession.requirements.language || 'en-US',
               availableAvatars: allAvatars,
+              learningMode: currentSession.requirements.learningMode,
             }),
             signal,
           });
@@ -604,6 +605,7 @@ function GenerationPreviewContent() {
           stageInfo,
           stageId: stage.id,
           agents,
+          learningMode: currentSession.requirements.learningMode,
         }),
         signal,
       });
@@ -633,6 +635,7 @@ function GenerationPreviewContent() {
           agents,
           previousSpeeches: [],
           userProfile,
+          learningMode: currentSession.requirements.learningMode,
         }),
         signal,
       });

@@ -59,6 +59,11 @@ export interface UploadedDocument {
 }
 
 /**
+ * Learning mode determines course structure, teaching style, and quiz format
+ */
+export type LearningMode = 'learn' | 'explore' | 'interview' | 'revision';
+
+/**
  * Simplified user requirements for course generation
  * All details (topic, duration, style, etc.) should be included in the requirement text
  */
@@ -68,6 +73,7 @@ export interface UserRequirements {
   userNickname?: string; // Student nickname for personalization
   userBio?: string; // Student background for personalization
   webSearch?: boolean; // Enable web search for richer context
+  learningMode?: LearningMode; // Learning mode for adapting course style
 }
 
 /**

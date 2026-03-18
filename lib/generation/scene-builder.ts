@@ -76,6 +76,7 @@ export async function buildSceneFromOutline(
   agents?: AgentInfo[],
   onPhaseChange?: (phase: 'content' | 'actions') => void,
   userProfile?: string,
+  learningMode?: string,
 ): Promise<Scene | null> {
   // Apply type fallbacks
   outline = applyOutlineFallbacks(outline, !!languageModel);
@@ -100,6 +101,7 @@ export async function buildSceneFromOutline(
     visionEnabled,
     undefined,
     agents,
+    learningMode,
   );
   if (!content) {
     log.error(`Failed to generate content for: ${outline.title}`);
@@ -109,7 +111,7 @@ export async function buildSceneFromOutline(
   // Step 2: Generate Actions
   onPhaseChange?.('actions');
   log.debug(`Step 2: Generating actions for: ${outline.title}`);
-  const actions = await generateSceneActions(outline, content, aiCall, ctx, agents, userProfile);
+  const actions = await generateSceneActions(outline, content, aiCall, ctx, agents, userProfile, learningMode);
   log.debug(`Generated ${actions.length} actions for: ${outline.title}`);
 
   // Build complete Scene object

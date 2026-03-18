@@ -7,6 +7,7 @@
 **Description**: {{description}}
 {{courseContext}}
 {{agents}}
+{{learningModeInstructions}}
 
 Please generate the speech content for this PBL scene.
 

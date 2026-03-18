@@ -10,6 +10,7 @@ import type {
   SceneOutline,
   PdfImage,
   ImageMapping,
+  LearningMode,
 } from '@/lib/types/generation';
 import { buildPrompt, PROMPT_IDS } from './prompts';
 import { formatImageDescription, formatImagePlaceholder } from './prompt-formatters';
@@ -92,6 +93,12 @@ export async function generateSceneOutlinesFromRequirements(
       '**IMPORTANT: Do NOT include any video mediaGenerations (type: "video") in the outlines. Video generation is disabled. Image generation is allowed.**';
   }
 
+  // Build learning mode instructions
+  const learningModeInstructions = buildLearningModeInstructions(
+    requirements.learningMode,
+    requirements.language,
+  );
+
   // Use simplified prompt variables
   const prompts = buildPrompt(PROMPT_IDS.REQUIREMENTS_TO_OUTLINES, {
     // New simplified variables
@@ -105,6 +112,7 @@ export async function generateSceneOutlinesFromRequirements(
     availableImages: availableImagesText,
     userProfile: userProfileText,
     mediaGenerationPolicy,
+    learningModeInstructions,
   });
 
   if (!prompts) {
@@ -178,4 +186,79 @@ export function applyOutlineFallbacks(
     return { ...outline, type: 'slide' };
   }
   return outline;
+}
+
+/**
+ * Build learning-mode-specific instructions for prompt injection
+ */
+export function buildLearningModeInstructions(
+  mode: LearningMode | undefined,
+  language: 'zh-CN' | 'en-US',
+): string {
+  if (!mode || mode === 'learn') return '';
+
+  const instructions: Record<string, { zh: string; en: string }> = {
+    explore: {
+      zh: `## 学习模式：探索
+
+请按"探索"模式设计课程：
+- 优先使用 interactive 场景进行深入探索和可视化
+- 包含延伸知识、跨学科联系和有趣的拓展内容
+- 减少测验频率，更注重激发好奇心和深度理解
+- 添加至少 1 个 interactive 场景
+- 鼓励开放式讨论和发散思维`,
+      en: `## Learning Mode: Explore
+
+Design the course in "Explore" mode:
+- Favor interactive scenes for deep exploration and visualization
+- Include tangential knowledge, cross-disciplinary connections, and fascinating extensions
+- Fewer quizzes — focus on curiosity and deep understanding
+- Add at least 1 interactive scene
+- Encourage open-ended discussion and divergent thinking`,
+    },
+    interview: {
+      zh: `## 学习模式：面试准备
+
+请按"面试准备"模式设计课程：
+- 每个主题都要解释"为什么面试中会考这个"
+- 包含常见面试问题、追问和陷阱场景的幻灯片
+- 添加权衡分析（tradeoff）幻灯片，对比不同方案的优劣
+- 测验题目应模拟真实面试题（系统设计、代码分析、场景分析等）
+- 在最后添加一个模拟面试讨论环节
+- 使用结构化的回答方式（先结论后展开）`,
+      en: `## Learning Mode: Interview Prep
+
+Design the course in "Interview Prep" mode:
+- Each topic should explain "why this matters in interviews"
+- Include slides on common interview questions, follow-ups, and gotcha scenarios
+- Add tradeoff analysis slides comparing different approaches
+- Quiz questions should mimic real interview questions (system design, code analysis, scenario-based)
+- Add a mock interview discussion at the end
+- Use structured answer patterns (conclusion first, then elaborate)`,
+    },
+    revision: {
+      zh: `## 学习模式：复习
+
+请按"复习"模式设计课程：
+- 幻灯片内容精简，只保留核心要点
+- 每 2 个幻灯片后插入一个测验
+- 使用"记住..."和"关键要点是..."的表达方式
+- 总时长控制在 10-15 分钟
+- 测验以快速回忆为主（"什么是..."、"什么时候用..."）
+- 注重知识点之间的联系和记忆线索`,
+      en: `## Learning Mode: Revision
+
+Design the course in "Revision" mode:
+- Keep slides concise — only core key points
+- Insert a quiz after every 2 slides
+- Use "Remember..." and "The key takeaway is..." framing
+- Total duration should be shorter (10-15 minutes)
+- Quizzes focus on rapid recall ("What is...", "When would you use...")
+- Emphasize connections between concepts and memory cues`,
+    },
+  };
+
+  const inst = instructions[mode];
+  if (!inst) return '';
+  return language === 'zh-CN' ? inst.zh : inst.en;
 }

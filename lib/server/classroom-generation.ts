@@ -26,6 +26,7 @@ export interface GenerateClassroomInput {
   requirement: string;
   pdfContent?: { text: string; images: string[] };
   language?: string;
+  learningMode?: string;
 }
 
 export type ClassroomGenerationStep =
@@ -80,7 +81,7 @@ function createInMemoryStore(stage: Stage): StageStore {
 }
 
 function normalizeLanguage(language?: string): 'zh-CN' | 'en-US' {
-  return language === 'en-US' ? 'en-US' : 'zh-CN';
+  return language === 'zh-CN' ? 'zh-CN' : 'en-US';
 }
 
 export async function generateClassroom(
@@ -131,6 +132,7 @@ export async function generateClassroom(
   const requirements: UserRequirements = {
     requirement,
     language: lang,
+    learningMode: (input.learningMode as UserRequirements['learningMode']) || undefined,
   };
   const pdfText = pdfContent?.text || undefined;
 
@@ -193,13 +195,17 @@ export async function generateClassroom(
       totalScenes: outlines.length,
     });
 
-    const content = await generateSceneContent(safeOutline, aiCall);
+    const content = await generateSceneContent(
+      safeOutline, aiCall, undefined, undefined, undefined, undefined, undefined, undefined, input.learningMode,
+    );
     if (!content) {
       log.warn(`Skipping scene "${safeOutline.title}" — content generation failed`);
       continue;
     }
 
-    const actions = await generateSceneActions(safeOutline, content, aiCall);
+    const actions = await generateSceneActions(
+      safeOutline, content, aiCall, undefined, undefined, undefined, input.learningMode,
+    );
     log.info(`Scene "${safeOutline.title}": ${actions.length} actions`);
 
     const sceneId = createSceneWithActions(safeOutline, content, actions, api);
