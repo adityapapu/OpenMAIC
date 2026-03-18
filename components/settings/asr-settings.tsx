@@ -219,6 +219,9 @@ export function ASRSettings({ selectedProviderId }: ASRSettingsProps) {
               case 'qwen-asr':
                 endpointPath = '/services/aigc/multimodal-generation/generation';
                 break;
+              case 'gemini-asr':
+                endpointPath = '/v1beta/models/gemini-3-flash-preview:generateContent';
+                break;
             }
             if (!endpointPath) return null;
             return (

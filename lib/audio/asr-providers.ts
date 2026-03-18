@@ -163,6 +163,7 @@ export interface ASRTranscriptionResult {
 export async function transcribeAudio(
   config: ASRModelConfig,
   audioBuffer: Buffer | Blob,
+  mimeType?: string,
 ): Promise<ASRTranscriptionResult> {
   const provider = ASR_PROVIDERS[config.providerId];
   if (!provider) {
@@ -183,6 +184,9 @@ export async function transcribeAudio(
 
     case 'qwen-asr':
       return await transcribeQwenASR(config, audioBuffer);
+
+    case 'gemini-asr':
+      return await transcribeGeminiASR(config, audioBuffer, mimeType);
 
     default:
       throw new Error(`Unsupported ASR provider: ${config.providerId}`);
@@ -324,6 +328,101 @@ async function transcribeQwenASR(
   // Extract text from first content item
   const transcribedText = messageContent[0]?.text || '';
   return { text: transcribedText };
+}
+
+/**
+ * Gemini ASR implementation (Gemini generateContent API with audio input)
+ */
+async function transcribeGeminiASR(
+  config: ASRModelConfig,
+  audioBuffer: Buffer | Blob,
+  mimeType?: string,
+): Promise<ASRTranscriptionResult> {
+  const baseUrl = config.baseUrl || ASR_PROVIDERS['gemini-asr'].defaultBaseUrl;
+
+  // Convert audio to base64
+  let base64Audio: string;
+  if (audioBuffer instanceof Buffer) {
+    base64Audio = audioBuffer.toString('base64');
+  } else if (audioBuffer instanceof Blob) {
+    const arrayBuffer = await audioBuffer.arrayBuffer();
+    base64Audio = Buffer.from(arrayBuffer).toString('base64');
+  } else {
+    throw new Error('Invalid audio buffer type');
+  }
+
+  const effectiveMimeType = mimeType || 'audio/webm';
+
+  // Build the transcription prompt
+  let prompt = 'Transcribe this audio exactly as spoken. Output ONLY the spoken words, nothing else. If there is no speech, output exactly: [EMPTY]';
+  if (config.language && config.language !== 'auto') {
+    prompt = `Transcribe this audio exactly as spoken in ${config.language}. Output ONLY the spoken words, nothing else. If there is no speech, output exactly: [EMPTY]`;
+  }
+
+  const response = await fetch(
+    `${baseUrl}/v1beta/models/gemini-3-flash-preview:generateContent`,
+    {
+      method: 'POST',
+      headers: {
+        'x-goog-api-key': config.apiKey!,
+        'Content-Type': 'application/json; charset=utf-8',
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            parts: [
+              {
+                inlineData: {
+                  mimeType: effectiveMimeType,
+                  data: base64Audio,
+                },
+              },
+              {
+                text: prompt,
+              },
+            ],
+          },
+        ],
+      }),
+    },
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => response.statusText);
+    let errorMessage = `Gemini ASR API error: ${errorText}`;
+    try {
+      const errorJson = JSON.parse(errorText);
+      if (errorJson.error?.message) {
+        errorMessage = `Gemini ASR API error: ${errorJson.error.message}`;
+      }
+    } catch {
+      // If not JSON, use the text as is
+    }
+    throw new Error(errorMessage);
+  }
+
+  const data = await response.json();
+
+  const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+  if (!rawText) {
+    return { text: '' };
+  }
+
+  const trimmed = rawText.trim();
+
+  // Filter out non-transcription responses (model commentary instead of actual transcription)
+  if (
+    trimmed === '[EMPTY]' ||
+    trimmed.toLowerCase().includes('no speech') ||
+    trimmed.toLowerCase().includes('no audio') ||
+    trimmed.toLowerCase().includes('silence') ||
+    trimmed.toLowerCase().includes('there is no')
+  ) {
+    return { text: '' };
+  }
+
+  return { text: trimmed };
 }
 
 /**

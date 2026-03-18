@@ -785,6 +785,22 @@ export const ASR_PROVIDERS: Record<ASRProviderId, ASRProviderConfig> = {
     supportedFormats: ['mp3', 'wav', 'webm', 'm4a', 'flac'],
   },
 
+  'gemini-asr': {
+    id: 'gemini-asr',
+    name: 'Gemini ASR',
+    requiresApiKey: true,
+    defaultBaseUrl: 'https://generativelanguage.googleapis.com',
+    icon: '/logos/gemini.svg',
+    supportedLanguages: [
+      'auto',
+      'zh', 'en', 'ja', 'ko', 'es', 'fr', 'de', 'ru', 'ar', 'pt', 'it', 'hi',
+      'af', 'bg', 'ca', 'cs', 'da', 'nl', 'et', 'fi', 'el', 'he', 'hu', 'id',
+      'is', 'lv', 'lt', 'ms', 'no', 'pl', 'ro', 'sr', 'sk', 'sl', 'sv', 'th',
+      'tr', 'uk', 'vi',
+    ],
+    supportedFormats: ['mp3', 'wav', 'aac', 'ogg', 'flac', 'webm'],
+  },
+
   'browser-native': {
     id: 'browser-native',
     name: '浏览器原生 ASR (Web Speech API)',

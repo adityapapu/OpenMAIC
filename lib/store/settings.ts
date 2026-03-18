@@ -271,6 +271,7 @@ const getDefaultAudioConfig = () => ({
     'openai-whisper': { apiKey: '', baseUrl: '', enabled: true },
     'browser-native': { apiKey: '', baseUrl: '', enabled: true },
     'qwen-asr': { apiKey: '', baseUrl: '', enabled: false },
+    'gemini-asr': { apiKey: '', baseUrl: '', enabled: false },
   } as Record<ASRProviderId, { apiKey: string; baseUrl: string; enabled: boolean }>,
 });
 
@@ -714,13 +715,11 @@ export const useSettingsStore = create<SettingsState>()(
               }
               for (const [pid, info] of Object.entries(data.asr)) {
                 const key = pid as ASRProviderId;
-                if (newASRConfig[key]) {
-                  newASRConfig[key] = {
-                    ...newASRConfig[key],
-                    isServerConfigured: true,
-                    serverBaseUrl: info.baseUrl,
-                  };
-                }
+                newASRConfig[key] = {
+                  ...(newASRConfig[key] || { apiKey: '', baseUrl: '', enabled: false }),
+                  isServerConfigured: true,
+                  serverBaseUrl: info.baseUrl,
+                };
               }
 
               // Merge PDF providers
