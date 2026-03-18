@@ -56,6 +56,7 @@ const TTS_ENV_MAP: Record<string, string> = {
   TTS_GLM: 'glm-tts',
   TTS_QWEN: 'qwen-tts',
   TTS_GEMINI: 'gemini-tts',
+  TTS_GOOGLE_CLOUD: 'google-cloud-tts',
 };
 
 const ASR_ENV_MAP: Record<string, string> = {

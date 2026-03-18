@@ -44,6 +44,7 @@ function getTTSProviderName(providerId: TTSProviderId, t: (key: string) => strin
     'glm-tts': t('settings.providerGLMTTS'),
     'qwen-tts': t('settings.providerQwenTTS'),
     'gemini-tts': t('settings.providerGeminiTTS'),
+    'google-cloud-tts': t('settings.providerGoogleCloudTTS'),
     'browser-native-tts': t('settings.providerBrowserNativeTTS'),
   };
   return names[providerId];
@@ -667,6 +668,9 @@ export function AudioSettings({ onSave }: AudioSettingsProps = {}) {
                     break;
                   case 'gemini-tts':
                     endpointPath = '/v1beta/models/gemini-2.5-flash-preview-tts:generateContent';
+                    break;
+                  case 'google-cloud-tts':
+                    endpointPath = '/v1/text:synthesize';
                     break;
                   default:
                     endpointPath = '';

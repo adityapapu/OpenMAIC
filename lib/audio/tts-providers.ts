@@ -134,6 +134,9 @@ export async function generateTTS(
     case 'gemini-tts':
       return await generateGeminiTTS(config, text);
 
+    case 'google-cloud-tts':
+      return await generateGoogleCloudTTS(config, text);
+
     case 'browser-native-tts':
       throw new Error(
         'Browser Native TTS must be handled client-side using Web Speech API. This provider cannot be used on the server.',
@@ -383,6 +386,71 @@ async function generateGeminiTTS(
   return {
     audio: wavBytes,
     format: 'wav',
+  };
+}
+
+/**
+ * Google Cloud TTS implementation (Cloud Text-to-Speech API v1)
+ * API docs: https://cloud.google.com/text-to-speech/docs/reference/rest/v1/text/synthesize
+ */
+async function generateGoogleCloudTTS(
+  config: TTSModelConfig,
+  text: string,
+): Promise<TTSGenerationResult> {
+  const baseUrl = config.baseUrl || TTS_PROVIDERS['google-cloud-tts'].defaultBaseUrl;
+
+  // Extract languageCode from voice name (e.g., 'en-US-Neural2-D' → 'en-US')
+  const voiceParts = config.voice.split('-');
+  const languageCode = voiceParts.length >= 2 ? `${voiceParts[0]}-${voiceParts[1]}` : 'en-US';
+
+  const response = await fetch(
+    `${baseUrl}/v1/text:synthesize?key=${config.apiKey}`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+      },
+      body: JSON.stringify({
+        input: { text },
+        voice: {
+          languageCode,
+          name: config.voice,
+        },
+        audioConfig: {
+          audioEncoding: 'MP3',
+          speakingRate: config.speed ?? 1.0,
+        },
+      }),
+    },
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => response.statusText);
+    let errorMessage = `Google Cloud TTS API error: ${errorText}`;
+    try {
+      const errorJson = JSON.parse(errorText);
+      if (errorJson.error?.message) {
+        errorMessage = `Google Cloud TTS API error: ${errorJson.error.message}`;
+      }
+    } catch {
+      // If not JSON, use the text as is
+    }
+    throw new Error(errorMessage);
+  }
+
+  const data = await response.json();
+
+  const audioContent = data.audioContent;
+  if (!audioContent) {
+    throw new Error(`Google Cloud TTS error: No audioContent in response.`);
+  }
+
+  // Decode base64 MP3 audio
+  const audioBytes = new Uint8Array(Buffer.from(audioContent, 'base64'));
+
+  return {
+    audio: audioBytes,
+    format: 'mp3',
   };
 }
 

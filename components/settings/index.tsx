@@ -122,6 +122,7 @@ function getTTSProviderName(providerId: TTSProviderId, t: (key: string) => strin
     'glm-tts': t('settings.providerGLMTTS'),
     'qwen-tts': t('settings.providerQwenTTS'),
     'gemini-tts': t('settings.providerGeminiTTS'),
+    'google-cloud-tts': t('settings.providerGoogleCloudTTS'),
     'browser-native-tts': t('settings.providerBrowserNativeTTS'),
   };
   return names[providerId];
