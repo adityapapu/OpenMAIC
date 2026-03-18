@@ -969,8 +969,8 @@ function GreetingBar() {
                   value={bio}
                   onChange={(e) => setBio(e.target.value)}
                   placeholder={t('profile.bioPlaceholder')}
-                  maxLength={200}
-                  rows={2}
+                  maxLength={1000}
+                  rows={4}
                   className="resize-none border-border/40 bg-transparent min-h-[72px] !text-[13px] !leading-relaxed placeholder:!text-[11px] placeholder:!leading-relaxed focus-visible:ring-1 focus-visible:ring-border/60"
                 />
               </div>
