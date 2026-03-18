@@ -10,8 +10,8 @@
  *   Returns inline base64 video data in response.videos[]
  *
  * Supported models:
- * - veo-3.1-fast-generate-001  (fast, $0.15/sec)
- * - veo-3.1-generate-001       (quality, $0.40/sec)
+ * - veo-3.1-fast-generate-preview  (fast, $0.15/sec)
+ * - veo-3.1-generate-preview       (quality, $0.40/sec)
  * - veo-3.0-fast-generate-001  (fast, $0.15/sec)
  * - veo-3.0-generate-001       (quality, $0.40/sec)
  * - veo-2.0-generate-001       (legacy, $0.50/sec)
