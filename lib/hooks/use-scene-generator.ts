@@ -210,8 +210,12 @@ async function fetchSceneActions(
 const TTS_MAX_RETRIES = 2;
 /** Delay between retries in ms */
 const TTS_RETRY_DELAY = 1000;
-/** Maximum concurrent TTS requests */
-const TTS_CONCURRENCY = 3;
+/** Maximum concurrent TTS requests (per provider) */
+const TTS_CONCURRENCY: Partial<Record<TTSProviderId, number>> & { default: number } = {
+  'google-cloud-tts': 6,
+  'gemini-tts': 2,
+  default: 3,
+};
 
 /** Generate TTS for one speech action and store in IndexedDB (with retry) */
 export async function generateAndStoreTTS(
@@ -307,7 +311,7 @@ async function generateTTSForScene(
   let resolveSlot: (() => void) | null = null;
 
   const waitForSlot = () => {
-    if (activeCount < TTS_CONCURRENCY) return Promise.resolve();
+    if (activeCount < (TTS_CONCURRENCY[providerId] ?? TTS_CONCURRENCY.default)) return Promise.resolve();
     return new Promise<void>((resolve) => {
       resolveSlot = resolve;
     });
