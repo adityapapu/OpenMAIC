@@ -90,6 +90,8 @@
  * - URL-based: For providers returning audio URL (download in second step)
  */
 
+import { createSign } from 'crypto';
+import { readFileSync } from 'fs';
 import type { TTSModelConfig } from './types';
 import { TTS_PROVIDERS } from './constants';
 
@@ -390,8 +392,81 @@ async function generateGeminiTTS(
 }
 
 /**
+ * Google Cloud TTS — Service Account OAuth2 token management
+ *
+ * The apiKey field holds the path to a service account JSON file.
+ * We read it, sign a JWT with the private key, exchange for an access token,
+ * and cache until expiry.
+ */
+let cachedGoogleCloudToken: { token: string; expiresAt: number } | null = null;
+let cachedServiceAccountPath: string | null = null;
+
+function base64url(data: Buffer | string): string {
+  const buf = typeof data === 'string' ? Buffer.from(data) : data;
+  return buf.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+async function getGoogleCloudAccessToken(serviceAccountPath: string): Promise<string> {
+  // Return cached token if still valid (with 60s margin)
+  if (
+    cachedGoogleCloudToken &&
+    cachedServiceAccountPath === serviceAccountPath &&
+    Date.now() < cachedGoogleCloudToken.expiresAt - 60_000
+  ) {
+    return cachedGoogleCloudToken.token;
+  }
+
+  // Read service account JSON
+  const saJson = JSON.parse(readFileSync(serviceAccountPath, 'utf-8'));
+  const { client_email, private_key } = saJson;
+  if (!client_email || !private_key) {
+    throw new Error('Invalid service account JSON: missing client_email or private_key');
+  }
+
+  // Build JWT
+  const now = Math.floor(Date.now() / 1000);
+  const header = base64url(JSON.stringify({ alg: 'RS256', typ: 'JWT' }));
+  const payload = base64url(
+    JSON.stringify({
+      iss: client_email,
+      scope: 'https://www.googleapis.com/auth/cloud-platform',
+      aud: 'https://oauth2.googleapis.com/token',
+      iat: now,
+      exp: now + 3600,
+    }),
+  );
+
+  const signer = createSign('RSA-SHA256');
+  signer.update(`${header}.${payload}`);
+  const signature = base64url(signer.sign(private_key));
+  const jwt = `${header}.${payload}.${signature}`;
+
+  // Exchange JWT for access token
+  const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: `grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=${jwt}`,
+  });
+
+  if (!tokenResponse.ok) {
+    const errText = await tokenResponse.text().catch(() => tokenResponse.statusText);
+    throw new Error(`Google Cloud OAuth2 token exchange failed: ${errText}`);
+  }
+
+  const tokenData = await tokenResponse.json();
+  cachedGoogleCloudToken = {
+    token: tokenData.access_token,
+    expiresAt: Date.now() + (tokenData.expires_in ?? 3600) * 1000,
+  };
+  cachedServiceAccountPath = serviceAccountPath;
+
+  return cachedGoogleCloudToken.token;
+}
+
+/**
  * Google Cloud TTS implementation (Cloud Text-to-Speech API v1)
- * API docs: https://cloud.google.com/text-to-speech/docs/reference/rest/v1/text/synthesize
+ * Supports Neural2, WaveNet, Chirp3-HD voices.
+ * Auth: service account JSON file (path stored in apiKey field).
  */
 async function generateGoogleCloudTTS(
   config: TTSModelConfig,
@@ -399,15 +474,22 @@ async function generateGoogleCloudTTS(
 ): Promise<TTSGenerationResult> {
   const baseUrl = config.baseUrl || TTS_PROVIDERS['google-cloud-tts'].defaultBaseUrl;
 
+  // apiKey holds path to service account JSON
+  if (!config.apiKey) {
+    throw new Error('Google Cloud TTS requires a service account JSON file path');
+  }
+  const accessToken = await getGoogleCloudAccessToken(config.apiKey);
+
   // Extract languageCode from voice name (e.g., 'en-US-Neural2-D' → 'en-US')
   const voiceParts = config.voice.split('-');
   const languageCode = voiceParts.length >= 2 ? `${voiceParts[0]}-${voiceParts[1]}` : 'en-US';
 
   const response = await fetch(
-    `${baseUrl}/v1/text:synthesize?key=${config.apiKey}`,
+    `${baseUrl}/v1/text:synthesize`,
     {
       method: 'POST',
       headers: {
+        'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json; charset=utf-8',
       },
       body: JSON.stringify({

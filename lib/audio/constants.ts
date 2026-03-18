@@ -654,76 +654,51 @@ export const TTS_PROVIDERS: Record<TTSProviderId, TTSProviderConfig> = {
     defaultBaseUrl: 'https://texttospeech.googleapis.com',
     icon: '/logos/gemini.svg',
     voices: [
-      // English (US)
-      { id: 'en-US-Neural2-D', name: 'en-US-Neural2-D', language: 'en-US', gender: 'male' },
-      { id: 'en-US-Neural2-F', name: 'en-US-Neural2-F', language: 'en-US', gender: 'female' },
-      { id: 'en-US-Neural2-A', name: 'en-US-Neural2-A', language: 'en-US', gender: 'male' },
-      { id: 'en-US-Neural2-C', name: 'en-US-Neural2-C', language: 'en-US', gender: 'female' },
-      { id: 'en-US-Neural2-H', name: 'en-US-Neural2-H', language: 'en-US', gender: 'female' },
-      { id: 'en-US-Neural2-I', name: 'en-US-Neural2-I', language: 'en-US', gender: 'male' },
-      // English (GB)
-      { id: 'en-GB-Neural2-A', name: 'en-GB-Neural2-A', language: 'en-GB', gender: 'female' },
-      { id: 'en-GB-Neural2-B', name: 'en-GB-Neural2-B', language: 'en-GB', gender: 'male' },
-      { id: 'en-GB-Neural2-C', name: 'en-GB-Neural2-C', language: 'en-GB', gender: 'female' },
-      { id: 'en-GB-Neural2-D', name: 'en-GB-Neural2-D', language: 'en-GB', gender: 'male' },
-      // Chinese (Mandarin)
-      { id: 'cmn-CN-Neural2-A', name: 'cmn-CN-Neural2-A', language: 'cmn-CN', gender: 'female' },
-      { id: 'cmn-CN-Neural2-B', name: 'cmn-CN-Neural2-B', language: 'cmn-CN', gender: 'male' },
-      { id: 'cmn-CN-Neural2-C', name: 'cmn-CN-Neural2-C', language: 'cmn-CN', gender: 'male' },
-      { id: 'cmn-CN-Neural2-D', name: 'cmn-CN-Neural2-D', language: 'cmn-CN', gender: 'female' },
-      // Japanese
-      { id: 'ja-JP-Neural2-B', name: 'ja-JP-Neural2-B', language: 'ja-JP', gender: 'female' },
-      { id: 'ja-JP-Neural2-C', name: 'ja-JP-Neural2-C', language: 'ja-JP', gender: 'male' },
-      { id: 'ja-JP-Neural2-D', name: 'ja-JP-Neural2-D', language: 'ja-JP', gender: 'male' },
-      // Korean
-      { id: 'ko-KR-Neural2-A', name: 'ko-KR-Neural2-A', language: 'ko-KR', gender: 'female' },
-      { id: 'ko-KR-Neural2-B', name: 'ko-KR-Neural2-B', language: 'ko-KR', gender: 'female' },
-      { id: 'ko-KR-Neural2-C', name: 'ko-KR-Neural2-C', language: 'ko-KR', gender: 'male' },
-      // Hindi (India)
-      { id: 'hi-IN-Neural2-A', name: 'hi-IN-Neural2-A', language: 'hi-IN', gender: 'female' },
-      { id: 'hi-IN-Neural2-B', name: 'hi-IN-Neural2-B', language: 'hi-IN', gender: 'male' },
-      { id: 'hi-IN-Neural2-C', name: 'hi-IN-Neural2-C', language: 'hi-IN', gender: 'male' },
-      { id: 'hi-IN-Neural2-D', name: 'hi-IN-Neural2-D', language: 'hi-IN', gender: 'female' },
-      // English (India)
-      { id: 'en-IN-Neural2-A', name: 'en-IN-Neural2-A', language: 'en-IN', gender: 'female' },
-      { id: 'en-IN-Neural2-B', name: 'en-IN-Neural2-B', language: 'en-IN', gender: 'male' },
-      { id: 'en-IN-Neural2-C', name: 'en-IN-Neural2-C', language: 'en-IN', gender: 'male' },
-      { id: 'en-IN-Neural2-D', name: 'en-IN-Neural2-D', language: 'en-IN', gender: 'female' },
-      // Tamil (India)
-      { id: 'ta-IN-Neural2-A', name: 'ta-IN-Neural2-A', language: 'ta-IN', gender: 'female' },
-      { id: 'ta-IN-Neural2-B', name: 'ta-IN-Neural2-B', language: 'ta-IN', gender: 'male' },
-      // Telugu (India)
-      { id: 'te-IN-Neural2-A', name: 'te-IN-Neural2-A', language: 'te-IN', gender: 'female' },
-      { id: 'te-IN-Neural2-B', name: 'te-IN-Neural2-B', language: 'te-IN', gender: 'male' },
-      // Bengali (India)
-      { id: 'bn-IN-Neural2-A', name: 'bn-IN-Neural2-A', language: 'bn-IN', gender: 'female' },
-      { id: 'bn-IN-Neural2-B', name: 'bn-IN-Neural2-B', language: 'bn-IN', gender: 'male' },
-      // Kannada (India)
-      { id: 'kn-IN-Neural2-A', name: 'kn-IN-Neural2-A', language: 'kn-IN', gender: 'female' },
-      { id: 'kn-IN-Neural2-B', name: 'kn-IN-Neural2-B', language: 'kn-IN', gender: 'male' },
-      // Malayalam (India)
-      { id: 'ml-IN-Neural2-A', name: 'ml-IN-Neural2-A', language: 'ml-IN', gender: 'female' },
-      { id: 'ml-IN-Neural2-B', name: 'ml-IN-Neural2-B', language: 'ml-IN', gender: 'male' },
-      // Gujarati (India)
-      { id: 'gu-IN-Neural2-A', name: 'gu-IN-Neural2-A', language: 'gu-IN', gender: 'female' },
-      { id: 'gu-IN-Neural2-B', name: 'gu-IN-Neural2-B', language: 'gu-IN', gender: 'male' },
-      // Marathi (India)
-      { id: 'mr-IN-Neural2-A', name: 'mr-IN-Neural2-A', language: 'mr-IN', gender: 'female' },
-      { id: 'mr-IN-Neural2-B', name: 'mr-IN-Neural2-B', language: 'mr-IN', gender: 'male' },
-      // Spanish
-      { id: 'es-US-Neural2-A', name: 'es-US-Neural2-A', language: 'es-US', gender: 'female' },
-      { id: 'es-US-Neural2-B', name: 'es-US-Neural2-B', language: 'es-US', gender: 'male' },
-      { id: 'es-US-Neural2-C', name: 'es-US-Neural2-C', language: 'es-US', gender: 'male' },
-      // French
-      { id: 'fr-FR-Neural2-A', name: 'fr-FR-Neural2-A', language: 'fr-FR', gender: 'female' },
-      { id: 'fr-FR-Neural2-B', name: 'fr-FR-Neural2-B', language: 'fr-FR', gender: 'male' },
-      { id: 'fr-FR-Neural2-C', name: 'fr-FR-Neural2-C', language: 'fr-FR', gender: 'female' },
-      { id: 'fr-FR-Neural2-D', name: 'fr-FR-Neural2-D', language: 'fr-FR', gender: 'male' },
-      // German
-      { id: 'de-DE-Neural2-A', name: 'de-DE-Neural2-A', language: 'de-DE', gender: 'female' },
-      { id: 'de-DE-Neural2-B', name: 'de-DE-Neural2-B', language: 'de-DE', gender: 'male' },
-      { id: 'de-DE-Neural2-C', name: 'de-DE-Neural2-C', language: 'de-DE', gender: 'female' },
-      { id: 'de-DE-Neural2-D', name: 'de-DE-Neural2-D', language: 'de-DE', gender: 'male' },
+      // Chirp3-HD — English India
+      { id: 'en-IN-Chirp3-HD-Charon', name: 'Chirp3 Charon · English IN · Male', language: 'en-IN', gender: 'male' },
+      { id: 'en-IN-Chirp3-HD-Kore', name: 'Chirp3 Kore · English IN · Female', language: 'en-IN', gender: 'female' },
+      { id: 'en-IN-Chirp3-HD-Puck', name: 'Chirp3 Puck · English IN · Male', language: 'en-IN', gender: 'male' },
+      { id: 'en-IN-Chirp3-HD-Aoede', name: 'Chirp3 Aoede · English IN · Female', language: 'en-IN', gender: 'female' },
+      { id: 'en-IN-Chirp3-HD-Fenrir', name: 'Chirp3 Fenrir · English IN · Male', language: 'en-IN', gender: 'male' },
+      { id: 'en-IN-Chirp3-HD-Leda', name: 'Chirp3 Leda · English IN · Female', language: 'en-IN', gender: 'female' },
+      { id: 'en-IN-Chirp3-HD-Orus', name: 'Chirp3 Orus · English IN · Male', language: 'en-IN', gender: 'male' },
+      { id: 'en-IN-Chirp3-HD-Zephyr', name: 'Chirp3 Zephyr · English IN · Female', language: 'en-IN', gender: 'female' },
+      // Chirp3-HD — Hindi
+      { id: 'hi-IN-Chirp3-HD-Charon', name: 'Chirp3 Charon · Hindi · Male', language: 'hi-IN', gender: 'male' },
+      { id: 'hi-IN-Chirp3-HD-Kore', name: 'Chirp3 Kore · Hindi · Female', language: 'hi-IN', gender: 'female' },
+      { id: 'hi-IN-Chirp3-HD-Puck', name: 'Chirp3 Puck · Hindi · Male', language: 'hi-IN', gender: 'male' },
+      { id: 'hi-IN-Chirp3-HD-Aoede', name: 'Chirp3 Aoede · Hindi · Female', language: 'hi-IN', gender: 'female' },
+      // Neural2 — Hindi
+      { id: 'hi-IN-Neural2-A', name: 'Neural2 A · Hindi · Female', language: 'hi-IN', gender: 'female' },
+      { id: 'hi-IN-Neural2-B', name: 'Neural2 B · Hindi · Male', language: 'hi-IN', gender: 'male' },
+      { id: 'hi-IN-Neural2-C', name: 'Neural2 C · Hindi · Male', language: 'hi-IN', gender: 'male' },
+      { id: 'hi-IN-Neural2-D', name: 'Neural2 D · Hindi · Female', language: 'hi-IN', gender: 'female' },
+      // Neural2 — English India
+      { id: 'en-IN-Neural2-A', name: 'Neural2 A · English IN · Female', language: 'en-IN', gender: 'female' },
+      { id: 'en-IN-Neural2-B', name: 'Neural2 B · English IN · Male', language: 'en-IN', gender: 'male' },
+      { id: 'en-IN-Neural2-C', name: 'Neural2 C · English IN · Male', language: 'en-IN', gender: 'male' },
+      { id: 'en-IN-Neural2-D', name: 'Neural2 D · English IN · Female', language: 'en-IN', gender: 'female' },
+      // Neural2 — Tamil
+      { id: 'ta-IN-Neural2-A', name: 'Neural2 A · Tamil · Female', language: 'ta-IN', gender: 'female' },
+      { id: 'ta-IN-Neural2-B', name: 'Neural2 B · Tamil · Male', language: 'ta-IN', gender: 'male' },
+      // Neural2 — Telugu
+      { id: 'te-IN-Neural2-A', name: 'Neural2 A · Telugu · Female', language: 'te-IN', gender: 'female' },
+      { id: 'te-IN-Neural2-B', name: 'Neural2 B · Telugu · Male', language: 'te-IN', gender: 'male' },
+      // Neural2 — Bengali
+      { id: 'bn-IN-Neural2-A', name: 'Neural2 A · Bengali · Female', language: 'bn-IN', gender: 'female' },
+      { id: 'bn-IN-Neural2-B', name: 'Neural2 B · Bengali · Male', language: 'bn-IN', gender: 'male' },
+      // Neural2 — Kannada
+      { id: 'kn-IN-Neural2-A', name: 'Neural2 A · Kannada · Female', language: 'kn-IN', gender: 'female' },
+      { id: 'kn-IN-Neural2-B', name: 'Neural2 B · Kannada · Male', language: 'kn-IN', gender: 'male' },
+      // Neural2 — Malayalam
+      { id: 'ml-IN-Neural2-A', name: 'Neural2 A · Malayalam · Female', language: 'ml-IN', gender: 'female' },
+      { id: 'ml-IN-Neural2-B', name: 'Neural2 B · Malayalam · Male', language: 'ml-IN', gender: 'male' },
+      // Neural2 — Gujarati
+      { id: 'gu-IN-Neural2-A', name: 'Neural2 A · Gujarati · Female', language: 'gu-IN', gender: 'female' },
+      { id: 'gu-IN-Neural2-B', name: 'Neural2 B · Gujarati · Male', language: 'gu-IN', gender: 'male' },
+      // Neural2 — Marathi
+      { id: 'mr-IN-Neural2-A', name: 'Neural2 A · Marathi · Female', language: 'mr-IN', gender: 'female' },
+      { id: 'mr-IN-Neural2-B', name: 'Neural2 B · Marathi · Male', language: 'mr-IN', gender: 'male' },
     ],
     supportedFormats: ['mp3', 'wav', 'ogg'],
   },
@@ -972,7 +947,7 @@ export const DEFAULT_TTS_VOICES: Record<TTSProviderId, string> = {
   'glm-tts': 'tongtong',
   'qwen-tts': 'Cherry',
   'gemini-tts': 'Kore',
-  'google-cloud-tts': 'en-US-Neural2-D',
+  'google-cloud-tts': 'en-IN-Chirp3-HD-Charon',
   'browser-native-tts': 'default',
 };
 

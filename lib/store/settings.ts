@@ -693,13 +693,11 @@ export const useSettingsStore = create<SettingsState>()(
               }
               for (const [pid, info] of Object.entries(data.tts)) {
                 const key = pid as TTSProviderId;
-                if (newTTSConfig[key]) {
-                  newTTSConfig[key] = {
-                    ...newTTSConfig[key],
-                    isServerConfigured: true,
-                    serverBaseUrl: info.baseUrl,
-                  };
-                }
+                newTTSConfig[key] = {
+                  ...(newTTSConfig[key] || { apiKey: '', baseUrl: '', enabled: false }),
+                  isServerConfigured: true,
+                  serverBaseUrl: info.baseUrl,
+                };
               }
 
               // Merge ASR providers
